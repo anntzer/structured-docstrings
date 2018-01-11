@@ -1,28 +1,26 @@
-from interpolate import Interpolator
+from interpolate import interpolate_doc
 
 
-interpd = Interpolator()
-interpd.update(
-    foo="""
-        hello
-        world
-        """,
-    bar="foo bar\nbaz")
+foo = """
+    hello
+    world
+"""
+bar = "foo bar\nbaz"
 
 
-@interpd.interpolate_doc
+@interpolate_doc
 def func():
     """
     this is a docstring
 
-    {foo}
+    {interpolate_example.foo}
 
         {bar}
     """
 
 
 try:
-    @interpd.interpolate_doc
+    @interpolate_doc
     def bad_doc():
         """
         fields {must} be preceded by whitespace

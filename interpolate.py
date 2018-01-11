@@ -1,27 +1,19 @@
 """A more robust replacement for matplotlib.docstring.Substitution.
 """
 
-from collections import MutableMapping
 import inspect
 import re
 from string import Formatter
+import sys
+import pydoc
 import textwrap
 
 
-class Interpolator:
-    def __init__(self):
-        self._keys = {}
-
-    def __setitem__(self, key, value):
-        self._keys[key] = inspect.cleandoc(value)
-
-    def update(self, *args, **kwargs):
-        MutableMapping.update(self, *args, **kwargs)
-
-    def interpolate_doc(self, func):
-        if func.__doc__ is not None:
-            func.__doc__ = _Formatter().format(func.__doc__, **self._keys)
-        return func
+def interpolate_doc(func):
+    if func.__doc__ is not None:
+        func.__doc__ = _Formatter().format(
+            func.__doc__, **sys._getframe(1).f_globals)
+    return func
 
 
 class _Formatter(Formatter):
@@ -44,7 +36,15 @@ class _Formatter(Formatter):
             yield literal_text, field_name, indent, conversion
 
     @staticmethod
+    def get_field(field_name, args, kwargs):
+        try:
+            return Formatter().get_field(field_name, args, kwargs)
+        except KeyError:
+            return pydoc.locate(field_name), None
+
+    @staticmethod
     def format_field(value, format_spec):
         # Indent all lines, except the first one (which reuses the indent of
         # the format string).
-        return textwrap.indent(value, format_spec)[len(format_spec):]
+        return textwrap.indent(inspect.cleandoc(value),
+                               format_spec)[len(format_spec):]
