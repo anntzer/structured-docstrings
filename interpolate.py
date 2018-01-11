@@ -35,10 +35,9 @@ class _Formatter(Formatter):
             # Store indent information in the format_spec field.
             yield literal_text, field_name, indent, conversion
 
-    @staticmethod
-    def get_field(field_name, args, kwargs):
+    def get_field(self, field_name, args, kwargs):
         try:
-            return Formatter().get_field(field_name, args, kwargs)
+            return super().get_field(field_name, args, kwargs)
         except KeyError:
             return pydoc.locate(field_name), None
 
@@ -48,3 +47,9 @@ class _Formatter(Formatter):
         # the format string).
         return textwrap.indent(inspect.cleandoc(value),
                                format_spec)[len(format_spec):]
+
+    def convert_field(self, value, conversion):
+        if conversion == "K":
+            return value.__kw__  # cf matplotlib's kwdoc
+        else:
+            return super().convert_field(value, conversion)

@@ -8,6 +8,11 @@ foo = """
 bar = "foo bar\nbaz"
 
 
+class Foo:
+    # cf matplotlib's kwdoc.
+    __kw__ = "the kw of foo"
+
+
 @interpolate_doc
 def func():
     """
@@ -16,6 +21,8 @@ def func():
     {interpolate_example.foo}
 
         {bar}
+
+    {Foo!K}
     """
 
 
